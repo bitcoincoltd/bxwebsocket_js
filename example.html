@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>BX.in.th Websocket Examples</title>
+    <!-- This CSS is just for our example styles and is not required for websocket to work -->
+    <link href="https://d2v7vc3vnopnyy.cloudfront.net/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wgnMFSkChxhh1XVCCMtmhPzgM2JEPObmc6/VcIKIiPg7tB9I15XrCOabx2i6fKT9" crossorigin="anonymous">
+    <link href="https://d2v7vc3vnopnyy.cloudfront.net/css/bootstrap-responsive.min.css" rel="stylesheet" integrity="sha384-5OvlUi3aABI1o/vjIiY5FRM2LV7rRhvzIqeejsodF58x5GIRdSKmdE1LiR7O7Abu" crossorigin="anonymous">
+    <link href="https://d2v7vc3vnopnyy.cloudfront.net/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-IQa2VeceG5dzUzqF3s5gS4blcQNHdZrd2A2YKDUX2t5/GdOUNeTjg2Xe8LBuMYFh" crossorigin="anonymous">
+    <link href="https://d2v7vc3vnopnyy.cloudfront.net/css/admin.min.css?ver=1" rel="stylesheet" integrity="sha384-8KX3rOW/CWuZzjAh8idw+PXxP9Ip5iz6xfL8vfkd1zYBp6uRXjlrMHiKT96r628P" crossorigin="anonymous">
+</head>
+<style type="text/css">
+    .panel-tables {
+        height:400px;
+        overflow: auto;
+    }
+</style>
+<body>
+
+<div class="container">
+    <h1>BX.in.th Javascript Websocket Examples</h1>
+
+    <h2>Trades</h2>
+    <div class="row">
+        <div class="span6">
+
+            <div class="panel">
+                <div class="panel-header"><i class="fa fa-external-link"></i> Latest Trades (Bitcoin to Thai Baht)</div>
+                <div class="panel-content panel-tables">
+
+                    <table class="table" id="trades_btc">
+                        <thead>
+                        <tr>
+                            <th scope="col">Date/Time</th>
+                            <th scope="col">Rate</th>
+                            <th scope="col">Volume (BTC)</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="span6">
+
+            <div class="panel">
+                <div class="panel-header"><i class="fa fa-external-link"></i> Latest Trades (Ethereum to Thai Baht)</div>
+                <div class="panel-content panel-tables">
+
+                    <table class="table" id="trades_eth">
+                        <thead>
+                        <tr>
+                            <th scope="col">Date/Time</th>
+                            <th scope="col">Rate</th>
+                            <th scope="col">Volume (ETH)</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <h2>Order book</h2>
+    <div class="row">
+        <div class="span6">
+
+            <div class="panel">
+                <div class="panel-header"><i class="fa fa-bar-chart-o"></i> Buy Orders  (Bitcoin to Thai Baht)</div>
+                <div class="panel-content panel-tables">
+
+                    <table class="table" id="order_book_buy">
+                        <thead>
+                        <tr>
+                            <th>Volume (THB)</th>
+                            <th>Rate</th>
+                            <th>Volume (BTC)</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="span6">
+
+            <div class="panel">
+                <div class="panel-header"><i class="fa fa-bar-chart-o"></i> Sell Orders  (Bitcoin to Thai Baht)</div>
+                <div class="panel-content panel-tables">
+
+                    <table class="table" id="order_book_sell">
+                        <thead>
+                        <tr>
+                            <th>Volume (THB)</th>
+                            <th>Rate</th>
+                            <th>Volume (BTC)</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="span6">
+
+            <div class="panel">
+                <div class="panel-header"><i class="fa fa-bar-chart-o"></i> Buy Orders  (Ethereum to Thai Baht)</div>
+                <div class="panel-content panel-tables">
+
+                    <table class="table" id="order_book_buy_eth">
+                        <thead>
+                        <tr>
+                            <th>Volume (THB)</th>
+                            <th>Rate</th>
+                            <th>Volume (ETH)</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="span6">
+
+            <div class="panel">
+                <div class="panel-header"><i class="fa fa-bar-chart-o"></i> Sell Orders (Ethereum to Thai Baht)</div>
+                <div class="panel-content panel-tables">
+
+                    <table class="table" id="order_book_sell_eth">
+                        <thead>
+                        <tr>
+                            <th>Volume (THB)</th>
+                            <th>Rate</th>
+                            <th>Volume (ETH)</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- JQuery is required for this example, but bootstrap js is not required -->
+<script src="https://d2v7vc3vnopnyy.cloudfront.net/js/jquery-1.7.2.min.js" integrity="sha384-U0HMn1reBDS7045aoicHgB2sZr9ZxL/ClWHVMljSDtxq6uiTHKrbuV8qCPRVsHcI" crossorigin="anonymous"></script>
+<script src="https://d2v7vc3vnopnyy.cloudfront.net/js/bootstrap.min.js" integrity="sha384-oFMgcGzKX7GaHtF4hx14KbxdsGjyfHK6m1comHjI1FH6g4m6qYre+4cnZbwaYbHD" crossorigin="anonymous"></script>
+
+<script src="./bxws.bxlib.js"></script>
+<script src="./bxws.jquery.trades.js"></script>
+<script src="./bxws.jquery.orderbook.js"></script>
+<script>
+    jQuery( function ($) {
+        if (typeof bx_lib !== "object") {
+            return console.error( "Cant't find bx_ws object. Did you include bx_ws.js file?" )
+        }
+
+        // Order Book Widget
+        bx_lib.wsConnection( {
+            endpoint: "order_book",
+            pairing_id: 1,
+            handlers: [
+                $( "#order_book_buy" ).initOrderBookWidget( {
+                    // pairing_id and type are required!
+                    type: "buy"
+                    // will take default options
+                } ),
+                $( "#order_book_sell" ).initOrderBookWidget( {
+                    // pairing_id and type are required!
+                    type: "sell",
+                    maxRows: 30,
+                    highlightColor: "#fdcddf",
+                    highlightFadeTime: 1000
+                } )
+            ]
+        } );
+
+        bx_lib.wsConnection( {
+            endpoint: "order_book",
+            pairing_id: 21,
+            handlers: [
+                $( "#order_book_buy_eth" ).initOrderBookWidget( {
+                    // type is required!
+                    type: "buy"
+                    // will take default options
+                } ),
+                $( "#order_book_sell_eth" ).initOrderBookWidget( {
+                    type: "sell",
+                    maxRows: 30,
+                    highlightColor: "#fdcddf",
+                    highlightFadeTime: 1000
+                } )
+            ]
+        } );
+
+
+
+        // Trades Widget for BTC and ETH
+        bx_lib.wsConnection( {
+            endpoint: "trades",
+            pairing_id: 1,
+            handlers: [
+                $( "#trades_btc" ).initTradeWidget( {
+                    // will take default options
+                } )
+            ]
+        } );
+
+        bx_lib.wsConnection( {
+            endpoint: "trades",
+            pairing_id: 21,
+            handlers: [
+                $( "#trades_eth" ).initTradeWidget( {
+                    maxRows: 30,
+                } )
+            ]
+        } )
+
+    } );
+
+</script>
+
+</body>
+</html>
