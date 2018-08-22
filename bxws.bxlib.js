@@ -16,7 +16,11 @@ var bx_lib = {
         }
 
         function getUrl() {
-            return "wss://" + getHostname() + ":443/" +options. endpoint + "?pairing=" + options.pairing_id
+            var url = "wss://" + getHostname() + ":443/" +options. endpoint + "?pairing=" + options.pairing_id
+            if (options.start_data) {
+                url += "&start_data=" + options.start_data
+            }
+            return url
         }
 
         function getHostname() {
@@ -94,6 +98,12 @@ var bx_lib = {
 
     truncateTable: function (maxRows, table) {
         $( 'tr:gt(' + (maxRows - 1) + ')', table ).remove();
+    },
+
+    resetTable: function(table) {
+        $( 'tbody', table ).remove()
+        table.append( "<tbody></tbody>" )
+        return $( "tbody", table )
     },
 
     numberWithCommas: function (nStr){

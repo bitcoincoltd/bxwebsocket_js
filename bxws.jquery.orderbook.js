@@ -31,6 +31,11 @@ jQuery( function ($) {
 
             if (!Array.isArray( message.orders )) {
                 console.error( "Expected message containing orders array :( Got this staff: ", message );
+                return;
+            }
+
+            if (message.initial === true) {
+                tbody = bx_lib.resetTable(table)
             }
 
             if(!initialized){

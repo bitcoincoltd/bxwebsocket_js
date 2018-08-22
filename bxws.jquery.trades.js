@@ -1,6 +1,11 @@
 jQuery( function ($) {
     $.fn.initTradeWidget = function( options ) {
         var table = this;
+        var tbody = $("tbody", table)
+        if (tbody.length === 0) {
+            table.append("<tbody></tbody>")
+            tbody = $("tbody", table)
+        }
 
         var default_options = {
             maxRows: 20,
@@ -23,6 +28,11 @@ jQuery( function ($) {
 
             if (!Array.isArray( message.trades )) {
                 console.error( "Expected message containing trades array :( Got this stuff: ", message );
+                return;
+            }
+
+            if (message.initial === true) {
+                tbody = bx_lib.resetTable(table)
             }
 
             message.trades.forEach( function (trade) {
@@ -38,7 +48,7 @@ jQuery( function ($) {
         }
 
         function updateTimes() {
-            $( 'tr', table ).each( function () {
+            $( 'tr', tbody ).each( function () {
                 var trade_time = $( this ).attr( 'data-date' );
                 // convert dates to timestamp in milliseconds and calculate difference (it will be independent of timezone)
                 var delta_ms   = (new Date()).getTime() - (new Date( trade_time )).getTime();
@@ -52,7 +62,7 @@ jQuery( function ($) {
             var tr_id = "trade_" + parseInt(trade.trade_id);
 
             // prevent duplicates
-            if ($( '#' + tr_id, table ).length > 0) {
+            if ($( '#' + tr_id, tbody ).length > 0) {
                 return;
             }
 
@@ -67,10 +77,10 @@ jQuery( function ($) {
                 + '<td>' + bx_lib.safe_number(trade.amount, options.volume_decimals) + '</td>'
                 + '</tr>';
 
-            table.prepend( tr );
+            tbody.prepend( tr );
 
             setTimeout(function(){
-                $( "#" + tr_id, table ).css( { backgroundColor: "white" })
+                $( "#" + tr_id, tbody ).css( { backgroundColor: "white" })
             },options.highlightFadeTime);
         }
     };
