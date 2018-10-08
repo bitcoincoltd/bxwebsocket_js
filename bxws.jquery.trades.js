@@ -35,6 +35,8 @@ jQuery( function ($) {
                 tbody = bx_lib.resetTable(table)
             }
 
+            message.trades.reverse();
+
             message.trades.forEach( function (trade) {
                 addTradeToTable( trade )
             } );
