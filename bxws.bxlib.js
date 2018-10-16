@@ -1,26 +1,67 @@
 var bx_lib = {
     wsConnection: function (options) {
-        var reconnecting = false;
-        var connection   = null;
+        var reconnecting                     = false;
+        var connection                       = null;
+        var pingIntervalInSeconds            = 5;
+        var waitPongForSeconds               = 3;
+        var pingMessage                      = new ArrayBuffer( 1 );
+        (new Uint8Array( pingMessage ))[0]   = 0x0;
+        var waitingForPongHandler            = false;
+        var statuses                         = {};
+        var connectionMonitorIntervalHandler = null;
+        statuses[WebSocket.CLOSED]           = "CLOSED";
+        statuses[WebSocket.CLOSING]          = "CLOSING";
+        statuses[WebSocket.CONNECTING]       = "CONNECTING";
+        statuses[WebSocket.OPEN]             = "OPEN";
 
         initConnection();
 
         function initConnection() {
             if (!window["WebSocket"]) {
-                return alert( "Your browser does not support WebSockets." )
+                return alert( "Your browser does not support WebSockets." );
             }
+
             var url = getUrl();
             console.log( "Connecting to " + options.endpoint );
             connection = new WebSocket( url );
-            attachEvents()
+            attachEvents();
+            monitorConnectionAlive();
+            // logConnectionState()
+        }
+
+        function monitorConnectionAlive() {
+            clearInterval( connectionMonitorIntervalHandler );
+            connectionMonitorIntervalHandler = setInterval( function () {
+                if (connection.readyState === WebSocket.OPEN) {
+                    pingPong();
+                }
+            }, pingIntervalInSeconds * 1000 )
+        }
+
+        function pingPong() {
+            connection.send( pingMessage );
+            waitingForPongHandler = setTimeout( function () {
+                console.error( "Did not receive PONG! Forcing reconnection!" );
+                reConnect();
+            }, waitPongForSeconds * 1000 )
+        }
+
+        function logConnectionState() {
+            clearInterval( this.monitorState );
+            this.monitorState = setInterval( function () {
+                console.log( (new Date).getTime() + " " + options.endpoint + ": state: ", statuses[connection.readyState] )
+            }, 5000 )
         }
 
         function getUrl() {
-            var url = "wss://" + getHostname() + ":443/" +options. endpoint + "?pairing=" + options.pairing_id
+            if (typeof websocket_url === 'undefined') {
+                websocket_url = "wss://" + getHostname() + ":443/";
+            }
+            var url = websocket_url + options.endpoint + "?pairing=" + options.pairing_id;
             if (options.start_data) {
                 url += "&start_data=" + options.start_data
             }
-            return url
+            return url;
         }
 
         function getHostname() {
@@ -30,13 +71,21 @@ var bx_lib = {
         function attachEvents() {
             connection.onclose   = function (event) { onClose( event ) };
             connection.onerror   = function (event) { onError( event ) };
-            connection.onmessage = function (event) {
-                // pass event to all handlers
-                options.handlers.forEach(function(handler){
-                    handler(event)
-                })
-            };
+            connection.onmessage = function (event) { onMessage(event) };
             connection.onopen    = function (event) { onOpen( event ) }
+        }
+
+        function onMessage(event) {
+            // pong message
+            if (event.data === "\u0000") {
+                clearTimeout( waitingForPongHandler );
+                return
+            }
+
+            // pass event to all handlers
+            options.handlers.forEach( function (handler) {
+                handler( event, connection )
+            } )
         }
 
         function onOpen(event) {
@@ -49,6 +98,9 @@ var bx_lib = {
             if (reconnecting === true) return;
 
             reconnecting = true;
+            if (connection.readyState === WebSocket.OPEN) {
+                connection.close();
+            }
             initConnection();
 
             console.log( "Waiting a few seconds..." );
@@ -57,7 +109,7 @@ var bx_lib = {
 
         function checkConnectionState() {
             reconnecting = false;
-            console.log( "connection.readyState: ", connection.readyState );
+            console.log( "Connection state: ", statuses[connection.readyState] );
 
             switch (connection.readyState) {
                 case WebSocket.CLOSED || WebSocket.CLOSING:
@@ -71,12 +123,14 @@ var bx_lib = {
                     console.log( "Connected!" );
                     break;
                 default:
-                    console.log( "unknown state" );
+                    // should never happen
+                    console.log( "Unknown state" );
             }
 
         }
 
         function onError(event) {
+            // if connection was closed it will be onClose event as well.
             console.error( "Connection error: ", event );
         }
 
@@ -100,10 +154,10 @@ var bx_lib = {
         $( 'tr:gt(' + (maxRows - 1) + ')', table ).remove();
     },
 
-    resetTable: function(table) {
-        $( 'tbody', table ).remove()
-        table.append( "<tbody></tbody>" )
-        return $( "tbody", table )
+    hideTable: function (maxRows, table, truncRows) {
+        $( 'tr:gt(' + maxRows + ')', table ).hide();
+        $( 'tr:lt(' + (maxRows + 1) + ')', table ).show();
+        this.truncateTable( truncRows, table );
     },
 
     numberWithCommas: function (nStr){
@@ -116,7 +170,7 @@ var bx_lib = {
             x1 = x1.replace(rgx, '$1' + ',' + '$2');
         }
         x = x1 + x2;
-        if(x.substr(0,1) == '.'){
+        if(x.substr(0,1) === '.'){
             x = '0' + x;
         }
         return x;
