@@ -5,7 +5,9 @@ jQuery( function ($) {
         var default_options = {
             maxRows: 30,
             rate_decimals: 2,
-            volume_decimals: 8
+            volume_decimals: 8,
+            highlightColor: "#d3e0fd",
+            highlightFadeTime: 1000
         };
 
         options = Object.assign(default_options, options);
@@ -70,14 +72,16 @@ jQuery( function ($) {
                 : '<i class="fa fa-lg fa-arrow-circle-o-down red"></i>';
 
 
-            var tr = '<tr data-trade="' + tr_id + '" data-date="' + bx_lib.safe_date(trade.trade_date) + '" >'
+            var tr = '<tr data-trade="' + tr_id + '" data-date="' + bx_lib.safe_date(trade.trade_date) + '" style="background-color: ' + options.highlightColor + '">'
                 + '<td>' + icon + '<span></span></td>'
                 + '<td>' + bx_lib.safe_number(trade.rate, options.rate_decimals) + '</td>'
                 + '<td>' + bx_lib.safe_number(trade.amount, options.volume_decimals) + '</td>'
                 + '</tr>';
 
             table.prepend( tr );
-            $('tr:eq(0)',table).rowanimate();
+            setTimeout(function(){
+                $( "[data-trade='"+tr_id+"']", table ).css( { backgroundColor: "white" })
+            },options.highlightFadeTime);
             return true;
         }
     };

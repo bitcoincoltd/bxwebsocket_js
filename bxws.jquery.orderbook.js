@@ -9,8 +9,6 @@ jQuery( function ($) {
 
         var reinitTimeoutHandler = null;
 
-        var hotprice = parseFloat($('#othermarket').data('price'));
-
         if (!options.type) {
             console.error( "You must specify type as 'sell' or 'buy'" )
         }
@@ -19,7 +17,9 @@ jQuery( function ($) {
             maxRows: 30,
             minRows: 10,
             rate_decimals: 2,
-            volume_decimals: 8
+            volume_decimals: 8,
+            highlightColor: "#d3e0fd",
+            highlightFadeTime: 1000
         };
 
         options = Object.assign( default_options, options );
@@ -109,7 +109,7 @@ jQuery( function ($) {
 
         function insertNewRow(order, tr_id, initialize) {
             // prevent duplicates
-            if (sort && $( '#' + tr_id, table ).length > 0) {
+            if ($( "[data-trade='" + tr_id + "']", tbody ).length > 0) {
                 return;
             }
 
@@ -123,9 +123,9 @@ jQuery( function ($) {
                 }
             }
 
-            var tr = '<tr id="' + tr_id + '" '
+            var tr = '<tr data-trade="' + tr_id + '"'
                 + ' data-rate="' + order.rate + '"'
-                + (sort ? 'style="background-color: ' + options.highlightColor + '"' : '') + '>'
+                + ' style="background-color: ' + options.highlightColor + '">'
                 + '<td>' + bx_lib.safe_number( order.volume, options.rate_decimals) + '</td>'
                 + '<td>' + bx_lib.safe_number( display_rate, options.rate_decimals) + '</td>'
                 + '<td>' + bx_lib.safe_number( order.amount, options.volume_decimals) + '</td>'
@@ -133,17 +133,16 @@ jQuery( function ($) {
 
             if(initialize){
                 tbody.append(tr);
-                return;
+            } else {
+                insertRowSorted(tr, order);
             }
 
-            insertRowSorted(tr, order, tr_id);
-
             setTimeout(function(){
-                $( "#" + tr_id, table ).css( { backgroundColor: "white" })
+                $( "[data-trade='" + tr_id +"']", tbody ).css( { backgroundColor: "white" })
             },options.highlightFadeTime);
         }
 
-        function insertRowSorted(tr, order, tr_id) {
+        function insertRowSorted(tr, order) {
             var inserted = false;
             var insertBefore = false;
 
