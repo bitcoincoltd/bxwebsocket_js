@@ -38,10 +38,6 @@ jQuery( function ($) {
             if(newtrades){
                 $('.empty',table).remove();
                 bx_lib.truncateTable(options.maxRows, table);
-                $('.scrollbar').perfectScrollbar('update');
-                if(sound){
-                    $('#audio_beep').trigger('play');
-                }
             }
             updateTimes() // update once immediately
         }
