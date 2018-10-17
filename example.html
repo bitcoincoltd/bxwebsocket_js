@@ -161,7 +161,7 @@
         bx_lib.wsConnection( {
             endpoint: "order_book",
             pairing_id: 1,
-            start_data: 10, // limit initial results to maximum 5 buy and 5 sell orders
+            start_data: 30, // limit initial results to maximum 5 buy and 5 sell orders
             handlers: [
                 $( "#order_book_buy" ).initOrderBookWidget( {
                     // pairing_id and type are required!

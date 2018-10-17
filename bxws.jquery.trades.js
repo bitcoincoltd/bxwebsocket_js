@@ -27,6 +27,8 @@ jQuery( function ($) {
 
             var newtrades = false;
 
+            message.trades.reverse();
+
             message.trades.forEach( function (trade) {
                 if(addTradeToTable( trade )){
                     newtrades = true;
