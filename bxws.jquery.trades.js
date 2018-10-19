@@ -25,8 +25,6 @@ jQuery( function ($) {
                 console.error( "Expected message containing trades array :( Got this stuff: ", message );
             }
 
-            message.trades.reverse();
-
             var newtrades = false;
 
             message.trades.reverse();
